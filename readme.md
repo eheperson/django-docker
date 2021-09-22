@@ -315,3 +315,31 @@ Now, Test it out again :
     docker-compose -f docker-compose.prod.yml down -v
     docker-compose -f docker-compose.prod.yml up -d --build
     docker-compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
+
+Ensure the app is up and running at http://localhost:1337.
+
+Bring the containers down once done:
+
+    docker-compose -f docker-compose.prod.yml down -v
+
+## Settings for static files 
+
+### Static files for development
+
+Since Gunicorn is an application server, it will not serve up static files. 
+So, how should both static and media files be handled in this particular configuration?
+
+Update settings.py:
+
+    STATIC_URL = "/static/"
+    STATIC_ROOT = BASE_DIR / "staticfiles"
+
+Now, any request to http://localhost:8001/static/* will be served from the "staticfiles" directory.
+
+To test, first re-build the images and spin up the new containers per usual. Ensure static files are still being served correctly at http://localhost:8001/admin.
+
+localhost:8001 setting is in docker-compose.yml  file
+
+    docker-compose -f docker-compose.yml down -v
+    docker-compose -f docker-compose.yml up -d --build
+    docker-compose -f docker-compose.yml exec web python manage.py migrate --noinput
