@@ -12,8 +12,13 @@ docker-compose-test
         │   ├── manage.py
         │   ├── Dockerfile
         │   └── requirements.txt
+        ├── .gitignore
+        ├── .git/
+        ├── .dockerignore.
+        ├── .env.dev
+        ├── docker-compose.django.yml.old
         ├── docker-compose.yml
-        └── 
+        └── readme.md
 
 ## Django Setup
 
@@ -144,6 +149,7 @@ Change the directory of the working terminal to project root and continue :
 !!! Activate venv if not activated
 
     pip install gunicorn
+    rm app/requirements.txt
     pip freeze >> app/requirements.txt
 
 Since we still want to use Django's built-in server in development, create a new compose file called docker-compose.prod.yml for production.
@@ -186,3 +192,8 @@ Then, build the production images and spin up the containers:
 
     docker-compose -f docker-compose.prod.yml up -d --build
 
+Verify that the hello_django_prod database was created along with the default Django tables. 
+Test out the admin page at http://localhost:8000/admin. 
+<!--  -->
+!! The static files are not being loaded anymore. 
+This is expected since Debug mode is off. We'll fix this shortly.
