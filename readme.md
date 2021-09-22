@@ -197,3 +197,39 @@ Test out the admin page at http://localhost:8000/admin.
 <!--  -->
 !! The static files are not being loaded anymore. 
 This is expected since Debug mode is off. We'll fix this shortly.
+
+## Production Dockerfile 
+
+Did you notice that we're still running the database flush (which clears out the database) and migrate commands every time the container is run? This is fine in development, 
+
+but let's create a new entrypoint file for production.
+
+    touch app/entrypoint.prod.sh
+    # check the app/entypoint.prod.sh file
+
+Update the file permissions locally:
+
+    $ chmod +x app/entrypoint.prod.sh
+
+To use this  entrypoint.prod.sh file, 
+create a new Dockerfile called Dockerfile.prod for use with production builds
+
+    touch app/Dockerfile.prod
+
+    # Here, we used a Docker multi-stage build to reduce the final image size. 
+    # Essentially, builder is a temporary image that's used for building the Python wheels. 
+    # The wheels are then copied over to the final production image and the builder image is discarded.
+
+Did you notice that we created a non-root user? 
+By default, Docker runs container processes as root inside of a container. 
+This is a bad practice since attackers can gain root access to the 
+Docker host if they manage to break out of the container. 
+If you're root in the container, you'll be root on the host.
+
+Update the web service within the docker-compose.prod.yml file to build with Dockerfile.prod:
+
+    The old  docker-compose.prod.yml saved as docker-compose.prod.old.yml
+
+
+
+
