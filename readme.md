@@ -487,3 +487,35 @@ Now, let's test :
     docker-compose -f docker-compose.yml exec web python manage.py migrate --noinput
 
 You should be able to upload an image at http://localhost:8001/, and then view the image at http://localhost:8001/media/IMAGE_FILE_NAME.
+
+## Serving Media file for Production side
+
+For production, add another volume to the web and nginx services:
+
+    old docker-compose.prod.yml renamed as docker-compose.prod.beforemediafiles.yml
+
+
+We need to also create the "/home/app/web/mediafiles" folder in Dockerfile.prod:
+add following line to app/Dockerfile.prod
+the app/Dockerfile.prod renamed as app/Dockerfile.beforemedia.prod
+
+    #just a new line added  below "# create the appropriate directories" :
+
+    RUN mkdir $APP_HOME/mediafiles
+
+Update the Nginx config again:
+
+    # actual nginx.conf renamed as nginx.beforemedia.conf
+
+Re-build:
+
+    docker-compose down -v
+
+    docker-compose -f docker-compose.prod.yml up -d --build
+    docker-compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
+    docker-compose -f docker-compose.prod.yml exec web python manage.py collectstatic --no-input --clear
+
+Test it out one final time:
+
+    Upload an image at http://localhost:1337/.
+    Then, view the image at http://localhost:1337/media/IMAGE_FILE_NAME.
