@@ -1,7 +1,7 @@
 
 ## Project directory structure 
 
-docker-compose-test
+docker-compose-example
         └── app
         │   ├── webapp
         │   │   ├── __init__.py
@@ -25,7 +25,7 @@ docker-compose-test
 Prepare the environment
 
     mkdir docker-compose-example
-    cd docker-compose-test
+    cd docker-compose-example
     mkdir app
     
 
@@ -192,7 +192,7 @@ Then, build the production images and spin up the containers:
 
     docker-compose -f docker-compose.prod.yml up -d --build
 
-Verify that the hello_django_prod database was created along with the default Django tables. 
+Verify that the webapp_prod database was created along with the default Django tables. 
 Test out the admin page at http://localhost:8000/admin. 
 <!--  -->
 !! The static files are not being loaded anymore. 
@@ -236,5 +236,82 @@ Now, Try it out:
     docker-compose -f docker-compose.prod.yml up -d --build
     docker-compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
 
+## Nginx Setup
 
+Next, let's add Nginx into the mix to act as a reverse proxy for 
+Gunicorn to handle client requests as well as serve up static files.
 
+Add the service to docker-compose.prod.yml:
+
+    nginx:
+        build: ./nginx
+        ports:
+            - 1337:80
+        depends_on:
+            - web
+    # old docker-compose.prod.yml saved as docker-compose.prod.beforenginx.yml
+
+Then, in the local project root, create the following files and folders:
+
+    └── nginx
+        ├── Dockerfile
+        └── nginx.conf
+<!--  -->
+
+    # cd to  docker-compose-example/
+
+    mkdir nginx
+    cd nginx
+
+    touch Dockerfile
+    touch nginx.conf
+
+Update docker-compose-example/nginx/Dockerfile as follow :
+
+    echo "FROM nginx:1.21-alpine" >> Dockerfile
+    echo "" >> Dockerfile
+    echo "RUN rm /etc/nginx/conf.d/default.conf" >> Dockerfile
+    echo "COPY nginx.conf /etc/nginx/conf.d" >> Dockerfile
+
+Update docker-compose-example/nginx/nginx.conf as follow : 
+
+    upstream webapp {
+        server web:8000;
+    }
+
+    server {
+
+        listen 80;
+
+        location / {
+            proxy_pass http://webapp;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $host;
+            proxy_redirect off;
+        }
+
+    }
+
+Then, update the web service, in docker-compose.prod.yml, replacing ports with expose:
+
+    web:
+        build:
+            context: ./app
+            dockerfile: Dockerfile.prod
+        command: gunicorn hello_django.wsgi:application --bind 0.0.0.0:8000
+        expose:
+            - 8000
+        env_file:
+            - ./.env.prod
+        depends_on:
+            - db
+    # the docker-compose.prod.yml file before this step saved as docker-compose.prod.beforenginxstep2.yml
+
+    # Now, port 8000 is only exposed internally, to other Docker services. 
+    # The port will no longer be published to the host machine.
+
+Now, Test it out again :
+
+    docker-compose -f docker-compose.prod.yml down -v
+    docker-compose -f docker-compose.prod.yml up -d --build
+    docker-compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
