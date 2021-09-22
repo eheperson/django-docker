@@ -324,7 +324,7 @@ Bring the containers down once done:
 
 ## Settings for static files 
 
-### Static files for development
+### Static files for development side
 
 Since Gunicorn is an application server, it will not serve up static files. 
 So, how should both static and media files be handled in this particular configuration?
@@ -343,3 +343,58 @@ localhost:8001 setting is in docker-compose.yml  file
     docker-compose -f docker-compose.yml down -v
     docker-compose -f docker-compose.yml up -d --build
     docker-compose -f docker-compose.yml exec web python manage.py migrate --noinput
+
+### Static files for production side
+
+For production, add a volume to the web and nginx services 
+in docker-compose.prod.yml so that each container will share a directory named "staticfiles":
+
+    old docker-compose.prod.yml renamed as docker-compose.prod.beforestaticprod.yml
+
+We need to also create the "/home/app/web/staticfiles" folder in Dockerfile.prod:
+add following files to app/Dockerfile.prod
+the app/Dockerfile.prod renamed as app/Dockerfile.beforestatic.prod
+
+    #just a new line added  below "# create the appropriate directories" :
+
+    RUN mkdir $APP_HOME/staticfiles
+
+
+
+Why is this necessary?
+
+Docker Compose normally mounts named volumes as root. And since we're using a non-root user, we'll get a permission denied error when the collectstatic command is run if the directory does not already exist
+
+To get around this, you can either:
+
+Create the folder in the Dockerfile (source)
+Change the permissions of the directory after it's mounted (source)
+We used the former.
+
+Next, update the Nginx configuration to route static file requests to the "staticfiles" folder:
+
+    # the nginx.conf file before this step renamed as nginx.conf.old
+
+Spin down the development containers:
+
+    docker-compose down -v
+
+Now let's test : 
+
+    docker-compose -f docker-compose.prod.yml up -d --build
+    docker-compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
+    docker-compose -f docker-compose.prod.yml exec web python manage.py collectstatic --no-input --clear
+
+Again, requests to http://localhost:1337/static/* will be served from the "staticfiles" directory.
+
+Navigate to http://localhost:1337/admin and ensure the static assets load correctly.
+
+You can also verify in the logs 
+    
+     via docker-compose -f docker-compose.prod.yml logs -f 
+ 
+that requests to the static files are served up successfully via Nginx:
+
+Bring the containers once done:
+
+    docker-compose -f docker-compose.prod.yml down -v
