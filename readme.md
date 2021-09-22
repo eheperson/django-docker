@@ -298,7 +298,7 @@ Then, update the web service, in docker-compose.prod.yml, replacing ports with e
         build:
             context: ./app
             dockerfile: Dockerfile.prod
-        command: gunicorn hello_django.wsgi:application --bind 0.0.0.0:8000
+        command: gunicorn webapp.wsgi:application --bind 0.0.0.0:8000
         expose:
             - 8000
         env_file:
@@ -398,3 +398,92 @@ that requests to the static files are served up successfully via Nginx:
 Bring the containers once done:
 
     docker-compose -f docker-compose.prod.yml down -v
+
+# Serving Media files
+
+## Serving Media file for Development side
+
+To test out the handling of media files, start by creating a new Django app:
+
+    docker-compose up -d --build
+    docker-compose exec web python manage.py startapp upload
+
+Add the new app to the INSTALLED_APPS list in settings.py:
+
+    INSTALLED_APPS = [
+        "django.contrib.admin",
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.contrib.staticfiles",
+
+        "upload",
+    ]
+
+update app/upload/views.py: 
+
+    from django.shortcuts import render
+    from django.core.files.storage import FileSystemStorage
+
+
+    def image_upload(request):
+        if request.method == "POST" and request.FILES["image_file"]:
+            image_file = request.FILES["image_file"]
+            fs = FileSystemStorage()
+            filename = fs.save(image_file.name, image_file)
+            image_url = fs.url(filename)
+            print(image_url)
+            return render(request, "upload.html", {
+                "image_url": image_url
+            })
+        return render(request, "upload.html")
+
+Add a "templates", directory to the "app/upload" directory, and then add a new template called upload.html:
+
+    touch /app/upload/templates/upload.html
+<!--  -->
+    <!-- upload.html -->
+    {% block content %}
+
+        <form action="{% url "upload" %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="image_file">
+            <input type="submit" value="submit" />
+        </form>
+
+        {% if image_url %}
+            <p>File uploaded at: <a href="{{ image_url }}">{{ image_url }}</a></p>
+        {% endif %}
+
+    {% endblock %}
+
+update app/webapp/urls.py: 
+
+    from django.contrib import admin
+    from django.urls import path
+    from django.conf import settings
+    from django.conf.urls.static import static
+
+    from upload.views import image_upload
+
+    urlpatterns = [
+        path("", image_upload, name="upload"),
+        path("admin/", admin.site.urls),
+    ]
+
+    if bool(settings.DEBUG):
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+app/webapp/settings.py:
+
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "mediafiles"
+
+Now, let's test :
+
+    docker-compose -f docker-compose.yml down -v
+    docker-compose -f docker-compose.yml up -d --build
+    docker-compose -f docker-compose.yml exec web python manage.py migrate --noinput
+
+You should be able to upload an image at http://localhost:8001/, and then view the image at http://localhost:8001/media/IMAGE_FILE_NAME.
