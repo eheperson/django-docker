@@ -1,0 +1,60 @@
+
+Wouldn't it be great if we could save some of repeated works like design, build, test, maintain etc.
+
+> Reusability is the new way of life in Python.
+> A python package provides  a way of grouping related Python code for easy reuse
+
+> Now it should be more clear why we choose to have seperate template directories for the project and application:
+        "Everything that is part of the polls application is in polls"
+    It makes the application self-contained and easier to drop into a new project.
+
+---------- Packing Our Apps --------------------
+i    - Create a parent directory for our '<app_name>' outside of our Django project.
+      Call this directory as '<django_app>'.
+
+ii   - Move the '<app_name>' directory into the '<django_app>'.
+
+iii  - create a file  : '<django_app>/README.rst'.
+
+iv   - create a file : ''<django_app>/LICENSE'.
+
+v    - create files : 'setup.py' and 'setup.cfg'. 
+      Those files includes details for how to build and install the app.
+
+vi   - Only python modules and packages are included in the package by default.
+      To include additional files, the README.rst and our LICENSE file,
+      create a file '<django_app>/MANIFEST.in'.
+
+vii  - It is optional, but recommended to include detailed documentation with our app.
+      create a directory :: '<django_app>/docs/' for future documentation.
+      Add an additional line to '<django_app>/MANIFEST.in',  ''' "recursive-include" docs * '''
+
+      Note : The 'docs' directory will not be included in our package unless we add some files to it.
+      Note : May Django apps also provide their documentation online through sites like : "readthedocs.org".
+
+viii - Try building our package with "python setup.py sdist" 
+        (Do not forget this step and, run it inside '<django_app>')
+        (This creates a directory called 'dist' and builds our new package : '<django_app>_0.1.tar.gz')
+
+---------- Using Our Own Package--------------------
+Problem  : Since we moved the '<app_name>' directory of the project, it is no longer working.
+Solution : We will now fix this by installing our new django app package.
+Installing As User Library : 
+$pip install --user <django_app>/dist/<django_app>-0.1.tar.gz
+to uninstall : $pip uninstall <django_app>
+
+Note : --user parameter corresponds 'Per-user' installation. Per-user installs have a lot of advantages over installing the package "system-wide".
+
+Note : per-user installations can still affect the behavior of system tools 
+            VIRTUALENV IS MORE ROBUST SOLUTION
+
+---------- Publishing Our App --------------------
+Now we have packed and tested our <django_app>, it is ready to share.
+
+    Option 1 : Email the package to a friend.
+    Option 2 : Upload the package on our website.
+    Option 3 : Post the package on a public repo(like PyPI)
+    Option 4 : ....
+    Option 5 : ....
+    .... 
+    ....

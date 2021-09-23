@@ -1,0 +1,112 @@
+https://www.youtube.com/watch?v=LiiSsTuR6Xk
+
+pip freeze > requirements.txt
+
+Paket bağımlılıklarımızı yerel olarak izole etmek için sanal bir ortam oluşturun
+
+python3 -m venv env
+source venv/bin/activate # for Mac 
+Django ve Django REST çerçevesini sanal ortama kurun
+
+pip install django
+pip install djangorestframework
+pip install psycopg2-binary----> postgresql için gerekli
+
+Tek bir uygulama ile yeni bir proje kurun
+
+django-admin startproject x #projem
+python manage.py startapp y #appim
+
+Oluşturduğunuz uygulamayı proje içinde kullanabilmek için settings.py içinde tanımlı olması gerekiyor.
+
+INSTALLED_APPS = (
+    # ...
+    "Django",
+    )
+
+Veritabanınızı senkronize edin
+
+python3 manage.py makemigrations
+python3 manage.py migrate
+
+kullanıcı olarak kimlik doğrulaması yapaca
+
+python manage.py createsuperuser --email admin@example.com --username admin
+
+python manage.py runserver
+
+Database setting içine 
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'a',
+        'USER': 'postgres',
+        'PASSWORD': '1',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+
+Tablo senkronizasyonu
+
+python3 manage.py migrate –run-syncdb
+
+
+
+-------------------
+
+pip install django-import-export
+
+
+python manage.py collectstatic
+
+Settings e ekle ;
+
+IMPORT_EXPORT_USE_TRANSACTIONS = False
+IMPORT_EXPORT_SKIP_ADMIN_LOG = False
+IMPORT_EXPORT_TMP_STORAGE_CLASS = False
+IMPORT_EXPORT_EXPORT_PERMISSION_CODE = False
+IMPORT_EXPORT_CHUNK_SIZE = False
+
+# settings.py
+INSTALLED_APPS = (
+    ...
+    'import_export',
+)
+
+
+navigator.connection.downlink
+
+
+
+
+
+
+
+
+
+git status
+
+
+git pull origin master
+
+
+git add magellan/settings.py
+
+
+github bağlantı
+git init
+git remote add origin https://github.com/Qubitda/KF-1500.git
+git status
+git checkout -b xxx
+git add . --- tüm dosyalar eklendi
+ 	
+
+
+$ git status
+$ git add --all .
+$ git status
+$ git commit -m "Sitede gönderi oluşturmak ve düzenlemek için view'ler eklendi."
+$ git push
+
