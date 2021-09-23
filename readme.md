@@ -1,24 +1,57 @@
 
 ## Project directory structure 
 
-docker-compose-example
-        └── app
-        │   ├── webapp
-        │   │   ├── __init__.py
-        │   │   ├── asgi.py
-        │   │   ├── settings.py
-        │   │   ├── urls.py
-        │   │   └── wsgi.py
-        │   ├── manage.py
-        │   ├── Dockerfile
-        │   └── requirements.txt
-        ├── .gitignore
-        ├── .git/
-        ├── .dockerignore.
-        ├── .env.dev
-        ├── docker-compose.django.yml.old
-        ├── docker-compose.yml
-        └── readme.md
+outpur of the "$ls -la" from the root directory of the project:
+
+    docker-compose-example/
+            ├── .dockerignore.
+            ├── .env.dev
+            ├── .env.prod
+            ├── .env.prod.db
+            ├── .git/
+            ├── .gitignore
+            └── app/
+            │   ├── mediafiles/
+            │   ├── upload/
+            │   │   ├── migrations/
+            │   │   ├── templates/
+            │   │   ├── __init__.py
+            │   │   ├── admin.py
+            │   │   ├── apps.py
+            │   │   ├── models.py
+            │   │   ├── tests.py
+            │   │   └── views.py
+            │   ├── webapp/
+            │   │   ├── __init__.py
+            │   │   ├── asgi.py
+            │   │   ├── settings.py
+            │   │   ├── urls.py
+            │   │   └── wsgi.py
+            │   ├── Dockerfile
+            │   ├── Dockerfile.beforemedia.prod
+            │   ├── Dockerfile.beforestatic.prod
+            │   ├── Dockerfile.Django.old
+            │   ├── Dockerfile.prod
+            │   ├── entrypoint.prod.sh
+            │   ├── manage.py
+            │   ├── requirements.txt
+            ├── docker-compose.django.yml.old
+            ├── docker-compose.prod.beforemediafiles.yml
+            ├── docker-compose.prod.beforenginx.yml
+            ├── docker-compose.prod.beforenginxstep2.yml
+            ├── docker-compose.prod.beforestaticprod.yml
+            ├── docker-compose.prod.old.yml
+            ├── docker-compose.prod.yml
+            ├── docker-compose.yml
+            ├── nginx/
+            │   ├── Dockerfile
+            │   ├── nginx.conf
+            │   ├── nginx.conf.old
+            │   └── nginxbeforemedia.conf
+            ├── readme.md
+            ├── run.dev.sh
+            ├── run.prod.sh
+            └── venv/
 
 ## Django Setup
 
