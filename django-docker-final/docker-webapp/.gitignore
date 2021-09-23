@@ -1,0 +1,8 @@
+# ignoring virtualenv directory
+/venv/
+# ignoring MacOS files
+.DS_Store
+# ignore .env files 
+.env.dev
+.env.prod
+.env.prod.db
