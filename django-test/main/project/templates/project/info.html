@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Information Page</title>
+    <style>
+        p{
+            text-indent: 2em;
+        }
+        i{
+            text-indent: 2em;
+        }
+        strong{
+            text-indent: 2em;
+        }
+        h2{
+            text-indent: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <hr>
+    <div>
+        <h1> Creating Models</h1>
+
+        <h2> Philosophy </h2>
+        <p>
+            A model is the single, definitive source of information about our data. It contains the essential fields and behaviors of the data we are storing.
+        </p>
+        <p>
+            Django follows DRY Principle. The goal is to define our data model in one place and automatically derive things from it.
+        </p>
+        <p>
+            This inscludes the migrations. For example, miigrations are entirely derived from our models file, and are assentially a history that Django can troll through to update our database schema to match our current models.
+        </p>
+    
+        <hr>
+
+        <h2> Notes </h2>
+        <p> In Django each model is represented by a class that subclases 'django.db.models.Model'. Each model has a number of class variables, each of ehich represents a database field in the model.</p>
+        <p> Each field is represented by an instance of a 'Field' class.</p>
+        <p>-- e.g. 'CharField' for a character fields, 'DateTimeField' for datatimes</p>
+        <p> This tells Django what type of data each field holds.</p>
+        
+        <hr>
+    
+        <p>The name of each 'Field' instance is the field's name, in machine friendly format.</p>
+        <p>We will use this value in our python code, and our database will use it as the column name.</p>
+    
+        <hr>
+    
+        <p> We can use an optional first positional argument to a 'Field' to designate a human-readable name. </p>
+        <p> That isused in a couple of introspective parts of Django, and it doubles as documentation.</p>
+        <p> If this field does not provided, Django will use the machine-readable name. This field corresponds to 'verbose_name' argument.</p>
+        <p>
+            <i> 
+                Some Field classes have required arguments. CharField, for example, requires that we give it a 'max_length'. That's used not only in database schema, but in validation.
+            </i>
+        </p>
+        <p> Examples for human-readable name:</p>
+        <ul>
+            <li>name = models.CharField(verbose_name="name", max_length=255)</li>
+            <li>pub_date = models.DateTimeField(verbose_name="date published")</li>
+        </ul>
+        <p> A Field can also have various optional arguments; for example, 'default' :</p>
+        <ul>
+            <li>name = models.CharField(verbose_name="name", max_length=255, default="johndoe")</li>
+            <li>pub_date = models.DateTimeField(verbose_name="date published", default="none")</li>
+        </ul>
+        <p>
+            <strong> 
+                Note this; a relationship between data models is defined, using 'ForeignKey'. Django supoorts all the common database relationships : many-to-many, many-to-one, one-to-one.
+            </strong>
+        </p>
+
+        <hr>
+    
+        <h2> Activating Models</h2>
+        
+        <p> The small bit of model code gives Django a lot of information. With it, Django is able to :</p>
+        <ul>
+            <li> Create a database schema (CREATE TABLE statement). </li>
+            <li> Create a Python database-access API for accessing model objects. </li>
+        </ul>
+        <p>
+            <strong>
+                But first we need to tell our project that the application which have models is installed.
+            </strong>
+        <p>
+            <strong>
+                To include the app in our project, we need to add a reference to its configuration class in the INSTALLED_APPS setting.
+            </strong>
+        </p>
+        <p>
+            <strong>
+                Django is creating a Config class automatically in app's apps.py file. 
+            </strong>
+        </p>
+    
+        <p> 
+            Migrations are how Django stores changes to your models (and thus your database schema) - they’re files on disk. 
+        </p>
+        <p>
+            You can read the migration for your new model if you like; it’s the file app_name/migrations/0001_initial.py. 
+        </p>
+        <p>
+            They’re designed to be human-editable in case you want to manually tweak how Django changes things.
+        </p>
+        <p>
+            By running makemigrations, you’re telling Django that you’ve made some changes to your models (maybe, you’ve made new ones) and that you’d like the changes to be stored as a migration.
+        </p>
+        <p>
+            There’s a command that will run the migrations for you and manage your database schema automatically - that’s called migrate, and we’ll come to it in a moment - but first, let’s see what SQL that migration would run.
+        </p>
+        <p>
+            The sqlmigrate command takes migration names and returns their SQL:
+        </p>
+        <p style="text-indent: 5em !important;"> 
+            <code >
+                python manage.py sqlmigrate app_name 0001
+            </code>
+        </p>
+        
+        <p>
+            After makemigrations command we could run migrate command to create those model tables in your database.
+        </p>
+        <p>
+            The migrate command takes all the migrations that haven’t been applied (Django tracks which ones are applied using a special table in your database called django_migrations) and runs them against your database - essentially, synchronizing the changes you made to your models with the schema in the database.
+        </p>
+    
+        <p>
+            Migrations are very powerful and let you change your models over time, as you develop your project, without the need to delete your database or tables and make new ones.
+        </p>
+        <p>
+            It specializes in upgrading your database live, without losing data. 
+        </p> 
+        
+        <div style="color: blue;">
+            <p >
+                <strong>
+                    Remember the three-step guide to making model changes: 
+                
+                <ol>
+                    <li>
+                        Change your models (in models.py).
+                    </li>
+                    <li>    
+                        Run '<code>python manage.py makemigrations</code>' to create migrations for those changes
+                    </li>
+                    <li> 
+                        Run '<code>python manage.py migrate</code>' to apply those changes to the database.
+                    </li>
+                </ol>
+                </strong>
+                <i>
+                    The reason that there are separate commands to make and apply migrations is because you’ll commit migrations to your version control system and ship them with your app; they not only make your development easier, they’re also usable by other developers and in production.
+                </i>
+            </p>
+        </div>
+    </div>
+      
+    <h1> apps.py file</h1>
+    <p>
+        This file is created to help the user include any application configuration for the app. Using this, we can configure some of the attributes of the application.
+    </p>
+    <p>
+        From 'Application Configuration' documentation :
+    </p>
+    <ul>
+        <li>
+            Application configuration objects store metadata for an application.
+        </li>
+        <li>
+            Some attributes can be configured in AppConfig subclasses. 
+        </li>
+        <li>
+            Others are set by Django and read-only 
+        </li>
+    </ul>
+    <p>
+        To include the app, Django is creating a Config class automatically in app's apps.py file.
+    </p>
+
+    <h1>
+        Generic Views
+    </h1>
+
+    <h3>View Types</h3>
+
+    <dl>
+        <dt>
+            <strong> ListView : </strong>
+        </dt>
+        <dd>
+            <ul>
+                <li>
+                    The ListView generic view uses a default template called app_name/model_name_list.html; we use template_name to tell ListView to use our existing "polls/index.html" template.
+                </li>
+            </ul>
+        </dd>
+        <!--  -->
+        <dt>
+            <strong>DetailView :</strong>
+        </dt>
+        <dd>
+            <ul>
+                <li>
+                    The DetailView generic view expects the primary key value captured from the URL to be called "pk", so we’ve changed question_id to pk for the generic views.
+                </li>
+                <li>
+                    By default, the DetailView generic view uses a template called app_name/model_name_detail.html. In our case, it would use the template "polls/question_detail.html". 
+                </li>
+                <li>
+                    The template_name attribute is used to tell Django to use a specific template name instead of the autogenerated default template name. 
+                </li>
+                <li>
+                    We also specify the template_name for the results list view – this ensures that the results view and the detail view have a different appearance when rendered, even though they’re both a DetailView behind the scenes.
+                </li>
+            </ul>
+
+        </dd>
+        <!--  -->
+        <dt>
+            <strong>Notes :</strong>
+        </dt>
+        <dd>
+            <ul>
+                <li>
+                    Respectively, those two views abstract the concepts of “display a list of objects” and “display a detail page for a particular type of object.”
+                </li>
+                <li>
+                    Each generic view needs to know what model it will be acting upon. This is provided using the model attribute.
+                </li>
+            </ul>
+        </dd>
+    </dl>
+    <!-- In previous parts of the tutorial, the templates have been provided with a context that 
+  contains the question and latest_question_list context variables. 
+
+- For DetailView the question variable is provided automatically – since we’re using a Django model (Question), 
+  Django is able to determine an appropri- ate name for the context variable. 
+- However, for ListView, the automatically generated context variable is question_list. 
+  To override this we provide the context_object_name attribute, 
+  specifying that we want to use latest_question_list instead. 
+- As an alternative approach, you could change your templates to match the 
+  new default context variables – but it’s a lot easier to just tell Django to use the variable you want.
+- Run the server, and use your new polling app based on generic views. 
+- For full details on generic views, see the generic views documentation.
+- When you’re comfortable with forms and generic views, read part 5 of this tutorial to learn about testing our polls app. -->
+
+    <h1>Namespacing URL names</h1>
+    <p>
+        For example, the polls app has a detail view, and so might an app on the same project that is for a blog. How does one make it so that Django knows which app view to create for a url when using the {% url %} template tag?
+    </p>
+    <p>
+        The answer is to add namespaces to your URLconf. In the polls/urls.py file, go ahead and add an app_name to set the application namespace:
+    </p>
+
+
+
+
+
+
+
+
+</body>
+</html>
+  
+<!-- 
+# The path() function is passed four arguments, two required: route and view, and two optional: kwargs, and name.
+#   route : it is a string that contains a URL pattern. When processing a request, Django starts at the first pattern in urlpatterns and makes its way down the list, comparing the requested URL against each pattern until it finds one that matches.
+#   view : When Django finds a matching pattern, it calls the specified view function with an HttpRequest object as the first argument and any “captured” values from the route as keyword arguments. We’ll give an example of this in a bit.
+#   kwargs : Arbitrary keyword arguments can be passed in a dictionary to the target view. We aren’t going to use this feature of Django in the tutorial.
+#   name : Naming your URL lets you refer to it unambiguously from elsewhere in Django, especially from within templates. This powerful feature allows you to make global changes to the URL patterns of your project while only touching a single file.
+#  
+ -->
+
+
+ <!-- 
+# - request.POST is a dictionary-like object that lets you access submitted data by key name. 
+#   In this case, request.POST['choice'] returns the ID of the selected choice, as a string. 
+#   request.POST values are always strings.
+
+# - Note that Django also provides request.GET for accessing GET data in the same way – but we’re explicitly
+#   using request.POST in our code, to ensure that data is only altered via a POST call.
+
+# - request.POST['choice'] will raise KeyError if choice wasn’t provided in POST data. 
+# - The above code checks for KeyError and redisplays the question form with an error message if choice isn’t given.
+
+# - After incrementing the choice count, the code returns an HttpResponseRedirect rather than a normal HttpResponse. 
+# - HttpResponseRedirect takes a single argument: 
+#     the URL to which the user will be redirected (see the following point for how we construct the URL in this case).
+# - As the Python comment above points out, you should always return an HttpResponseRedirect after successfully dealing with POST data. 
+# - This tip isn’t specific to Django; it’s just good Web development practice.
+
+# - We are using the reverse() function in the HttpResponseRedirect constructor in this example. 
+# - This function helps avoid having to hardcode a URL in the view function. 
+# - It is given the name of the view that we want to pass control to and the variable portion of the URL pattern that points to that view. 
+# - In this case, using the URLconf we set up in Tutorial 3, this reverse() call will return a string like
+  -->

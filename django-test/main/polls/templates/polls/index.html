@@ -1,0 +1,23 @@
+
+{# to load static files #}
+{# The {% static %} template tag generates the absolute URL of static files.  #}
+{# That’s all you need to do for development. #}
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+
+
+{% if latest_question_list %}
+    <ul>
+        {% for question in latest_question_list %}
+            {# Removing hardcoded URLs in templates, the line below commented is an example for hardcoded URL #}
+            {# <li> <a href="/polls/{{ question.id }}/"> {{ question.question_text }}  </a> </li> #}
+
+            {# if using namespace in url  'polls:detail' otherwise 'detail' (in this case 'polls' is the namespace) #}
+            {# <li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li> #}
+            <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p> No polls are available </p> 
+{% endif %}
